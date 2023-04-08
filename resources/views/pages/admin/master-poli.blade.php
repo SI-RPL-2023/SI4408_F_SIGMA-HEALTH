@@ -76,3 +76,16 @@ function showSuccess($success)
     <!-- /.modal-content -->
     </div>
     </div>
+    
+    @if(count($errors) > 0)
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <h5><i class="icon fas fa-ban"></i> Alert!</h5>
+        <strong>Sorry!</strong> There were more problems with your HTML input.<br><br>
+        <ul>
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+        </ul>
+    </div>
+    @endif
