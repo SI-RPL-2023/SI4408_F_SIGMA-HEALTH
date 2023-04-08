@@ -1,6 +1,30 @@
 @extends('../layout')
 @section('content')
 <!-- ALERT -->
+<?php 
+function showError($error)
+{   
+    ?>
+    <div class="toast position-fixed top-0 end-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <span class="text-danger"><i class="bi bi-square-fill"></i></span>
+            <strong class="me-auto">&nbsp;Alert</strong>
+            
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <?php echo $error ?>
+        </div>
+    </div>
+    
+<?php
+}
+?>
+<!-- END OF ALERT -->
+<div class="main">
+<section class="signup">
+    <div class="container-signup">
+        <div class="signup-content">
             <div class="signup-form">
                 <h2 class="form-title">Registrasi</h2>
                 <form method="POST" action="doRegister" class="register-form" id="register-form">
