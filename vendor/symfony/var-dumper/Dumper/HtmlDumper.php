@@ -67,13 +67,16 @@ class HtmlDumper extends CliDumper
     protected $lastDepth = -1;
     protected $styles;
 
-    private array $displayOptions = [
+    private $displayOptions = [
         'maxDepth' => 1,
         'maxStringLength' => 160,
         'fileLinkFormat' => null,
     ];
-    private array $extraDisplayOptions = [];
+    private $extraDisplayOptions = [];
 
+    /**
+     * {@inheritdoc}
+     */
     public function __construct($output = null, string $charset = null, int $flags = 0)
     {
         AbstractDumper::__construct($output, $charset, $flags);
@@ -82,6 +85,9 @@ class HtmlDumper extends CliDumper
         $this->styles = static::$themes['dark'] ?? self::$themes['dark'];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setStyles(array $styles)
     {
         $this->headerIsDumped = false;
@@ -125,7 +131,10 @@ class HtmlDumper extends CliDumper
         $this->dumpSuffix = $suffix;
     }
 
-    public function dump(Data $data, $output = null, array $extraDisplayOptions = []): ?string
+    /**
+     * {@inheritdoc}
+     */
+    public function dump(Data $data, $output = null, array $extraDisplayOptions = [])
     {
         $this->extraDisplayOptions = $extraDisplayOptions;
         $result = parent::dump($data, $output);
@@ -158,9 +167,9 @@ var refStyle = doc.createElement('style'),
     };
 
 refStyle.innerHTML = 'pre.sf-dump .sf-dump-compact, .sf-dump-str-collapse .sf-dump-str-collapse, .sf-dump-str-expand .sf-dump-str-expand { display: none; }';
-doc.head.appendChild(refStyle);
+(doc.documentElement.firstElementChild || doc.documentElement.children[0]).appendChild(refStyle);
 refStyle = doc.createElement('style');
-doc.head.appendChild(refStyle);
+(doc.documentElement.firstElementChild || doc.documentElement.children[0]).appendChild(refStyle);
 
 if (!doc.addEventListener) {
     addEventListener = function (element, eventName, callback) {
@@ -773,6 +782,9 @@ EOHTML
         return $this->dumpHeader = preg_replace('/\s+/', ' ', $line).'</style>'.$this->dumpHeader;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function dumpString(Cursor $cursor, string $str, bool $bin, int $cut)
     {
         if ('' === $str && isset($cursor->attr['img-data'], $cursor->attr['content-type'])) {
@@ -788,7 +800,10 @@ EOHTML
         }
     }
 
-    public function enterHash(Cursor $cursor, int $type, string|int|null $class, bool $hasChild)
+    /**
+     * {@inheritdoc}
+     */
+    public function enterHash(Cursor $cursor, int $type, $class, bool $hasChild)
     {
         if (Cursor::HASH_OBJECT === $type) {
             $cursor->attr['depth'] = $cursor->depth;
@@ -816,7 +831,10 @@ EOHTML
         }
     }
 
-    public function leaveHash(Cursor $cursor, int $type, string|int|null $class, bool $hasChild, int $cut)
+    /**
+     * {@inheritdoc}
+     */
+    public function leaveHash(Cursor $cursor, int $type, $class, bool $hasChild, int $cut)
     {
         $this->dumpEllipsis($cursor, $hasChild, $cut);
         if ($hasChild) {
@@ -825,7 +843,10 @@ EOHTML
         parent::leaveHash($cursor, $type, $class, $hasChild, 0);
     }
 
-    protected function style(string $style, string $value, array $attr = []): string
+    /**
+     * {@inheritdoc}
+     */
+    protected function style(string $style, string $value, array $attr = [])
     {
         if ('' === $value) {
             return '';
@@ -917,6 +938,9 @@ EOHTML
         return $v;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function dumpLine(int $depth, bool $endOfValue = false)
     {
         if (-1 === $this->lastDepth) {

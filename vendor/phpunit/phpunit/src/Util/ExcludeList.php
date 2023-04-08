@@ -15,14 +15,20 @@ use function defined;
 use function dirname;
 use function is_dir;
 use function realpath;
-use function str_starts_with;
+use function sprintf;
+use function strpos;
 use function sys_get_temp_dir;
 use Composer\Autoload\ClassLoader;
 use DeepCopy\DeepCopy;
+use Doctrine\Instantiator\Instantiator;
 use PharIo\Manifest\Manifest;
 use PharIo\Version\Version as PharIoVersion;
+use phpDocumentor\Reflection\DocBlock;
+use phpDocumentor\Reflection\Project;
+use phpDocumentor\Reflection\Type;
 use PhpParser\Parser;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Prophet;
 use ReflectionClass;
 use SebastianBergmann\CliParser\Parser as CliParser;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
@@ -39,11 +45,13 @@ use SebastianBergmann\Invoker\Invoker;
 use SebastianBergmann\LinesOfCode\Counter;
 use SebastianBergmann\ObjectEnumerator\Enumerator;
 use SebastianBergmann\RecursionContext\Context;
+use SebastianBergmann\ResourceOperations\ResourceOperations;
 use SebastianBergmann\Template\Template;
 use SebastianBergmann\Timer\Timer;
 use SebastianBergmann\Type\TypeName;
 use SebastianBergmann\Version;
 use TheSeer\Tokenizer\Tokenizer;
+use Webmozart\Assert\Assert;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -51,11 +59,14 @@ use TheSeer\Tokenizer\Tokenizer;
 final class ExcludeList
 {
     /**
-     * @psalm-var array<string,int>
+     * @var array<string,int>
      */
     private const EXCLUDED_CLASS_NAMES = [
         // composer
         ClassLoader::class => 1,
+
+        // doctrine/instantiator
+        Instantiator::class => 1,
 
         // myclabs/deepcopy
         DeepCopy::class => 1,
@@ -68,6 +79,18 @@ final class ExcludeList
 
         // phar-io/version
         PharIoVersion::class => 1,
+
+        // phpdocumentor/reflection-common
+        Project::class => 1,
+
+        // phpdocumentor/reflection-docblock
+        DocBlock::class => 1,
+
+        // phpdocumentor/type-resolver
+        Type::class => 1,
+
+        // phpspec/prophecy
+        Prophet::class => 1,
 
         // phpunit/phpunit
         TestCase::class => 2,
@@ -123,6 +146,9 @@ final class ExcludeList
         // sebastian/recursion-context
         Context::class => 1,
 
+        // sebastian/resource-operations
+        ResourceOperations::class => 1,
+
         // sebastian/type
         TypeName::class => 1,
 
@@ -131,48 +157,60 @@ final class ExcludeList
 
         // theseer/tokenizer
         Tokenizer::class => 1,
+
+        // webmozart/assert
+        Assert::class => 1,
     ];
 
     /**
-     * @psalm-var list<string>
+     * @var string[]
      */
-    private static array $directories = [];
-    private static bool $initialized  = false;
+    private static $directories = [];
 
     /**
-     * @psalm-param non-empty-string $directory
-     *
-     * @throws InvalidDirectoryException
+     * @var bool
      */
+    private static $initialized = false;
+
     public static function addDirectory(string $directory): void
     {
         if (!is_dir($directory)) {
-            throw new InvalidDirectoryException($directory);
+            throw new Exception(
+                sprintf(
+                    '"%s" is not a directory',
+                    $directory
+                )
+            );
         }
 
         self::$directories[] = realpath($directory);
     }
 
     /**
-     * @psalm-return list<string>
+     * @throws Exception
+     *
+     * @return string[]
      */
     public function getExcludedDirectories(): array
     {
-        self::initialize();
+        $this->initialize();
 
         return self::$directories;
     }
 
+    /**
+     * @throws Exception
+     */
     public function isExcluded(string $file): bool
     {
         if (defined('PHPUNIT_TESTSUITE')) {
             return false;
         }
 
-        self::initialize();
+        $this->initialize();
 
         foreach (self::$directories as $directory) {
-            if (str_starts_with($file, $directory)) {
+            if (strpos($file, $directory) === 0) {
                 return true;
             }
         }
@@ -180,7 +218,10 @@ final class ExcludeList
         return false;
     }
 
-    private static function initialize(): void
+    /**
+     * @throws Exception
+     */
+    private function initialize(): void
     {
         if (self::$initialized) {
             return;

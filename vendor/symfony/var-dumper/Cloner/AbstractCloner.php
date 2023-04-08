@@ -66,6 +66,9 @@ abstract class AbstractCloner implements ClonerInterface
         'DOMAttr' => ['Symfony\Component\VarDumper\Caster\DOMCaster', 'castAttr'],
         'DOMElement' => ['Symfony\Component\VarDumper\Caster\DOMCaster', 'castElement'],
         'DOMText' => ['Symfony\Component\VarDumper\Caster\DOMCaster', 'castText'],
+        'DOMTypeinfo' => ['Symfony\Component\VarDumper\Caster\DOMCaster', 'castTypeinfo'],
+        'DOMDomError' => ['Symfony\Component\VarDumper\Caster\DOMCaster', 'castDomError'],
+        'DOMLocator' => ['Symfony\Component\VarDumper\Caster\DOMCaster', 'castLocator'],
         'DOMDocumentType' => ['Symfony\Component\VarDumper\Caster\DOMCaster', 'castDocumentType'],
         'DOMNotation' => ['Symfony\Component\VarDumper\Caster\DOMCaster', 'castNotation'],
         'DOMEntity' => ['Symfony\Component\VarDumper\Caster\DOMCaster', 'castEntity'],
@@ -89,7 +92,6 @@ abstract class AbstractCloner implements ClonerInterface
         'Symfony\Component\HttpFoundation\Request' => ['Symfony\Component\VarDumper\Caster\SymfonyCaster', 'castRequest'],
         'Symfony\Component\Uid\Ulid' => ['Symfony\Component\VarDumper\Caster\SymfonyCaster', 'castUlid'],
         'Symfony\Component\Uid\Uuid' => ['Symfony\Component\VarDumper\Caster\SymfonyCaster', 'castUuid'],
-        'Symfony\Component\VarExporter\Internal\LazyObjectState' => ['Symfony\Component\VarDumper\Caster\SymfonyCaster', 'castLazyObjectState'],
         'Symfony\Component\VarDumper\Exception\ThrowingCasterException' => ['Symfony\Component\VarDumper\Caster\ExceptionCaster', 'castThrowingCasterException'],
         'Symfony\Component\VarDumper\Caster\TraceStub' => ['Symfony\Component\VarDumper\Caster\ExceptionCaster', 'castTraceStub'],
         'Symfony\Component\VarDumper\Caster\FrameStub' => ['Symfony\Component\VarDumper\Caster\ExceptionCaster', 'castFrameStub'],
@@ -154,6 +156,7 @@ abstract class AbstractCloner implements ClonerInterface
         'mysqli_driver' => ['Symfony\Component\VarDumper\Caster\MysqliCaster', 'castMysqliDriver'],
 
         'CurlHandle' => ['Symfony\Component\VarDumper\Caster\ResourceCaster', 'castCurl'],
+        ':curl' => ['Symfony\Component\VarDumper\Caster\ResourceCaster', 'castCurl'],
 
         ':dba' => ['Symfony\Component\VarDumper\Caster\ResourceCaster', 'castDba'],
         ':dba persistent' => ['Symfony\Component\VarDumper\Caster\ResourceCaster', 'castDba'],
@@ -161,6 +164,7 @@ abstract class AbstractCloner implements ClonerInterface
         'GdImage' => ['Symfony\Component\VarDumper\Caster\ResourceCaster', 'castGd'],
         ':gd' => ['Symfony\Component\VarDumper\Caster\ResourceCaster', 'castGd'],
 
+        ':mysql link' => ['Symfony\Component\VarDumper\Caster\ResourceCaster', 'castMysqlLink'],
         ':pgsql large object' => ['Symfony\Component\VarDumper\Caster\PgSqlCaster', 'castLargeObject'],
         ':pgsql link' => ['Symfony\Component\VarDumper\Caster\PgSqlCaster', 'castLink'],
         ':pgsql link persistent' => ['Symfony\Component\VarDumper\Caster\PgSqlCaster', 'castLink'],
@@ -188,9 +192,6 @@ abstract class AbstractCloner implements ClonerInterface
         'RdKafka\Topic' => ['Symfony\Component\VarDumper\Caster\RdKafkaCaster', 'castTopic'],
         'RdKafka\TopicPartition' => ['Symfony\Component\VarDumper\Caster\RdKafkaCaster', 'castTopicPartition'],
         'RdKafka\TopicConf' => ['Symfony\Component\VarDumper\Caster\RdKafkaCaster', 'castTopicConf'],
-
-        'FFI\CData' => ['Symfony\Component\VarDumper\Caster\FFICaster', 'castCTypeOrCData'],
-        'FFI\CType' => ['Symfony\Component\VarDumper\Caster\FFICaster', 'castCTypeOrCData'],
     ];
 
     protected $maxItems = 2500;
@@ -200,15 +201,15 @@ abstract class AbstractCloner implements ClonerInterface
     /**
      * @var array<string, list<callable>>
      */
-    private array $casters = [];
+    private $casters = [];
 
     /**
      * @var callable|null
      */
     private $prevErrorHandler;
 
-    private array $classInfo = [];
-    private int $filter = 0;
+    private $classInfo = [];
+    private $filter = 0;
 
     /**
      * @param callable[]|null $casters A map of casters
@@ -217,7 +218,10 @@ abstract class AbstractCloner implements ClonerInterface
      */
     public function __construct(array $casters = null)
     {
-        $this->addCasters($casters ?? static::$defaultCasters);
+        if (null === $casters) {
+            $casters = static::$defaultCasters;
+        }
+        $this->addCasters($casters);
     }
 
     /**
@@ -265,9 +269,12 @@ abstract class AbstractCloner implements ClonerInterface
     /**
      * Clones a PHP variable.
      *
-     * @param int $filter A bit field of Caster::EXCLUDE_* constants
+     * @param mixed $var    Any PHP variable
+     * @param int   $filter A bit field of Caster::EXCLUDE_* constants
+     *
+     * @return Data
      */
-    public function cloneVar(mixed $var, int $filter = 0): Data
+    public function cloneVar($var, int $filter = 0)
     {
         $this->prevErrorHandler = set_error_handler(function ($type, $msg, $file, $line, $context = []) {
             if (\E_RECOVERABLE_ERROR === $type || \E_USER_ERROR === $type) {
@@ -299,20 +306,26 @@ abstract class AbstractCloner implements ClonerInterface
 
     /**
      * Effectively clones the PHP variable.
+     *
+     * @param mixed $var Any PHP variable
+     *
+     * @return array
      */
-    abstract protected function doClone(mixed $var): array;
+    abstract protected function doClone($var);
 
     /**
      * Casts an object to an array representation.
      *
      * @param bool $isNested True if the object is nested in the dumped structure
+     *
+     * @return array
      */
-    protected function castObject(Stub $stub, bool $isNested): array
+    protected function castObject(Stub $stub, bool $isNested)
     {
         $obj = $stub->value;
         $class = $stub->class;
 
-        if (str_contains($class, "@anonymous\0")) {
+        if (\PHP_VERSION_ID < 80000 ? "\0" === ($class[15] ?? null) : str_contains($class, "@anonymous\0")) {
             $stub->class = get_debug_type($obj);
         }
         if (isset($this->classInfo[$class])) {
@@ -363,8 +376,10 @@ abstract class AbstractCloner implements ClonerInterface
      * Casts a resource to an array representation.
      *
      * @param bool $isNested True if the object is nested in the dumped structure
+     *
+     * @return array
      */
-    protected function castResource(Stub $stub, bool $isNested): array
+    protected function castResource(Stub $stub, bool $isNested)
     {
         $a = [];
         $res = $stub->value;

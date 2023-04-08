@@ -75,11 +75,7 @@ class RateLimiter
             return false;
         }
 
-        if (is_null($result = $callback())) {
-            $result = true;
-        }
-
-        return tap($result, function () use ($key, $decaySeconds) {
+        return tap($callback() ?: true, function () use ($key, $decaySeconds) {
             $this->hit($key, $decaySeconds);
         });
     }
@@ -93,8 +89,10 @@ class RateLimiter
      */
     public function tooManyAttempts($key, $maxAttempts)
     {
+        $key = $this->cleanRateLimiterKey($key);
+
         if ($this->attempts($key) >= $maxAttempts) {
-            if ($this->cache->has($this->cleanRateLimiterKey($key).':timer')) {
+            if ($this->cache->has($key.':timer')) {
                 return true;
             }
 
