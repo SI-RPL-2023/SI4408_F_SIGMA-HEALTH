@@ -24,9 +24,9 @@ use Symfony\Component\VarDumper\Exception\ThrowingCasterException;
  */
 class ExceptionCaster
 {
-    public static int $srcContext = 1;
-    public static bool $traceArgs = true;
-    public static array $errorTypes = [
+    public static $srcContext = 1;
+    public static $traceArgs = true;
+    public static $errorTypes = [
         \E_DEPRECATED => 'E_DEPRECATED',
         \E_USER_DEPRECATED => 'E_USER_DEPRECATED',
         \E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
@@ -44,7 +44,7 @@ class ExceptionCaster
         \E_STRICT => 'E_STRICT',
     ];
 
-    private static array $framesCache = [];
+    private static $framesCache = [];
 
     public static function castError(\Error $e, array $a, Stub $stub, bool $isNested, int $filter = 0)
     {
@@ -337,7 +337,7 @@ class ExceptionCaster
                     $stub->attr['file'] = $f;
                     $stub->attr['line'] = $caller->getStartLine();
                 }
-            } catch (\ReflectionException) {
+            } catch (\ReflectionException $e) {
                 // ignore fake class/function
             }
 
@@ -352,7 +352,9 @@ class ExceptionCaster
             $pad = null;
             for ($i = $srcContext << 1; $i >= 0; --$i) {
                 if (isset($src[$i][$ltrim]) && "\r" !== ($c = $src[$i][$ltrim]) && "\n" !== $c) {
-                    $pad ??= $c;
+                    if (null === $pad) {
+                        $pad = $c;
+                    }
                     if ((' ' !== $c && "\t" !== $c) || $pad !== $c) {
                         break;
                     }

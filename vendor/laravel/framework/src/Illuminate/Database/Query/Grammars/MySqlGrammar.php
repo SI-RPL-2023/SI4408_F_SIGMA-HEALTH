@@ -23,10 +23,8 @@ class MySqlGrammar extends Grammar
      */
     protected function whereNull(Builder $query, $where)
     {
-        $columnValue = (string) $this->getValue($where['column']);
-
-        if ($this->isJsonSelector($columnValue)) {
-            [$field, $path] = $this->wrapJsonFieldAndPath($columnValue);
+        if ($this->isJsonSelector($where['column'])) {
+            [$field, $path] = $this->wrapJsonFieldAndPath($where['column']);
 
             return '(json_extract('.$field.$path.') is null OR json_type(json_extract('.$field.$path.')) = \'NULL\')';
         }
@@ -43,10 +41,8 @@ class MySqlGrammar extends Grammar
      */
     protected function whereNotNull(Builder $query, $where)
     {
-        $columnValue = (string) $this->getValue($where['column']);
-
-        if ($this->isJsonSelector($columnValue)) {
-            [$field, $path] = $this->wrapJsonFieldAndPath($columnValue);
+        if ($this->isJsonSelector($where['column'])) {
+            [$field, $path] = $this->wrapJsonFieldAndPath($where['column']);
 
             return '(json_extract('.$field.$path.') is not null AND json_type(json_extract('.$field.$path.')) != \'NULL\')';
         }
@@ -79,22 +75,6 @@ class MySqlGrammar extends Grammar
     }
 
     /**
-     * Compile the index hints for the query.
-     *
-     * @param  \Illuminate\Database\Query\Builder  $query
-     * @param  \Illuminate\Database\Query\IndexHint  $indexHint
-     * @return string
-     */
-    protected function compileIndexHint(Builder $query, $indexHint)
-    {
-        return match ($indexHint->type) {
-            'hint' => "use index ({$indexHint->index})",
-            'force' => "force index ({$indexHint->index})",
-            default => "ignore index ({$indexHint->index})",
-        };
-    }
-
-    /**
      * Compile an insert ignore statement into SQL.
      *
      * @param  \Illuminate\Database\Query\Builder  $query
@@ -121,19 +101,6 @@ class MySqlGrammar extends Grammar
     }
 
     /**
-     * Compile a "JSON contains key" statement into SQL.
-     *
-     * @param  string  $column
-     * @return string
-     */
-    protected function compileJsonContainsKey($column)
-    {
-        [$field, $path] = $this->wrapJsonFieldAndPath($column);
-
-        return 'ifnull(json_contains_path('.$field.', \'one\''.$path.'), 0)';
-    }
-
-    /**
      * Compile a "JSON length" statement into SQL.
      *
      * @param  string  $column
@@ -149,20 +116,9 @@ class MySqlGrammar extends Grammar
     }
 
     /**
-     * Compile a "JSON value cast" statement into SQL.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    public function compileJsonValueCast($value)
-    {
-        return 'cast('.$value.' as json)';
-    }
-
-    /**
      * Compile the random statement into SQL.
      *
-     * @param  string|int  $seed
+     * @param  string  $seed
      * @return string
      */
     public function compileRandom($seed)
@@ -231,24 +187,12 @@ class MySqlGrammar extends Grammar
      */
     public function compileUpsert(Builder $query, array $values, array $uniqueBy, array $update)
     {
-        $useUpsertAlias = $query->connection->getConfig('use_upsert_alias');
+        $sql = $this->compileInsert($query, $values).' on duplicate key update ';
 
-        $sql = $this->compileInsert($query, $values);
-
-        if ($useUpsertAlias) {
-            $sql .= ' as laravel_upsert_alias';
-        }
-
-        $sql .= ' on duplicate key update ';
-
-        $columns = collect($update)->map(function ($value, $key) use ($useUpsertAlias) {
-            if (! is_numeric($key)) {
-                return $this->wrap($key).' = '.$this->parameter($value);
-            }
-
-            return $useUpsertAlias
-                ? $this->wrap($value).' = '.$this->wrap('laravel_upsert_alias').'.'.$this->wrap($value)
-                : $this->wrap($value).' = values('.$this->wrap($value).')';
+        $columns = collect($update)->map(function ($value, $key) {
+            return is_numeric($key)
+                ? $this->wrap($value).' = values('.$this->wrap($value).')'
+                : $this->wrap($key).' = '.$this->parameter($value);
         })->implode(', ');
 
         return $sql.$columns;

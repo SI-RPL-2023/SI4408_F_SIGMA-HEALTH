@@ -12,7 +12,7 @@ use Illuminate\Support\InteractsWithTime;
 
 class FileStore implements Store, LockProvider
 {
-    use InteractsWithTime, RetrievesMultipleKeys;
+    use InteractsWithTime, HasCacheLock, RetrievesMultipleKeys;
 
     /**
      * The Illuminate Filesystem instance.
@@ -102,7 +102,7 @@ class FileStore implements Store, LockProvider
 
         try {
             $file->getExclusiveLock();
-        } catch (LockTimeoutException) {
+        } catch (LockTimeoutException $e) {
             $file->close();
 
             return false;
@@ -201,31 +201,6 @@ class FileStore implements Store, LockProvider
     }
 
     /**
-     * Get a lock instance.
-     *
-     * @param  string  $name
-     * @param  int  $seconds
-     * @param  string|null  $owner
-     * @return \Illuminate\Contracts\Cache\Lock
-     */
-    public function lock($name, $seconds = 0, $owner = null)
-    {
-        return new FileLock($this, $name, $seconds, $owner);
-    }
-
-    /**
-     * Restore a lock instance using the owner identifier.
-     *
-     * @param  string  $name
-     * @param  string  $owner
-     * @return \Illuminate\Contracts\Cache\Lock
-     */
-    public function restoreLock($name, $owner)
-    {
-        return $this->lock($name, 0, $owner);
-    }
-
-    /**
      * Remove an item from the cache.
      *
      * @param  string  $key
@@ -279,7 +254,7 @@ class FileStore implements Store, LockProvider
             $expire = substr(
                 $contents = $this->files->get($path, true), 0, 10
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
             return $this->emptyPayload();
         }
 
@@ -294,7 +269,7 @@ class FileStore implements Store, LockProvider
 
         try {
             $data = unserialize(substr($contents, 10));
-        } catch (Exception) {
+        } catch (Exception $e) {
             $this->forget($key);
 
             return $this->emptyPayload();
