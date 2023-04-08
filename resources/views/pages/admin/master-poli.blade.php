@@ -115,3 +115,57 @@ function showSuccess($success)
             @endforeach
         </tbody>
     </table>
+
+    <!-- MODAL EDIT -->
+    <form action="#" id="editForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal fade" id="edit_poli" style="display: none;" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h4 class="modal-title">Form Ubah Poli</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <div class="form-group">
+                              <label for="id_poli" class="control-label">ID Poli</label>
+                              <input type="text" name="id_poli" id="id_edit" class="form-control" readonly>
+                            </div>
+                            <div class="form-group">
+                              <label for="nama" class="control-label">Nama Poli</label>
+                              <input type="text" name="nama" id="nama_edit" class="form-control" placeholder="Masukkan Nama Poli">
+                            </div>
+                          </div>
+                          <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                            <button type="button" onclick="konfirmasiUbah()" class="btn btn-primary">Ubah</button>
+                          </div>
+                        </div>
+                        <!-- /.modal-content -->
+                      </div>
+                      <!-- /.modal-dialog -->
+                    </div>
+                  </form>
+</div>
+@section('js')
+<script>
+    // EDIT ON MODAL
+  function edit_poli(el) {
+       var link = $(el) //refer `a` tag which is clicked
+        var modal = $("#edit_poli") //your modal
+        var nama = link.data('nama')
+        var id = link.data('id')
+        var url = '{{asset("assets/uploads/produk-kategori")}}';
+        var url_update = "{{url('master-poli-update')}}/"+id+"";
+        // add attr action form
+        $('#editForm').attr('action', url_update);
+        // end add attr
+
+        modal.find('#nama_edit').val(nama);
+        modal.find('#id_edit').val(id);
+         
+      }
+      // END EDIT
+</script>
+@stop
+@stop
