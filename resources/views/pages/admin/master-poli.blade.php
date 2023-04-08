@@ -76,7 +76,7 @@ function showSuccess($success)
     <!-- /.modal-content -->
     </div>
     </div>
-    
+
     @if(count($errors) > 0)
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -89,3 +89,29 @@ function showSuccess($success)
         </ul>
     </div>
     @endif
+    <!-- CONTENT -->
+    <table id="example1" class="table table-bordered table-striped dataTable dtr-inline" aria-describedby="example1_info">
+        <thead>
+            <tr align="center">
+                <th class="sorting sorting_asc" tabindex="0" aria-controls="example1" aria-sort="ascending" width="50">No.</th>
+                <th class="sorting" tabindex="0" aria-controls="example1">Nama Poli</th>
+                <th class="sorting" tabindex="0" aria-controls="example1" width="200">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>  
+            @php $i=1; @endphp
+            @foreach($poli as $row)
+            <tr align="center">
+                <td>{{ $i++ }}</td>
+                <td>{{ $row->nama }}</td>
+                <td>
+                    <form action="{{url('master-poli-delete', $row->id)}}" method="post">
+                        <a onclick="edit_poli(this)" data-bs-target="#edit_poli" data-bs-toggle="modal" data-id="{{$row->id}}" data-nama="{{$row->nama}}" class="btn btn-outline-primary mt-2"><i class="bi bi-pen"></i></a>
+                        @csrf 
+                        <button type="button" class="btn btn-outline-danger mt-2" onclick="konfirmasiHapus()"><i class="bi bi-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
