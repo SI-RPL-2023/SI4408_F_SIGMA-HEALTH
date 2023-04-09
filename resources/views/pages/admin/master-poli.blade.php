@@ -147,7 +147,6 @@ function showSuccess($success)
                     </div>
                   </form>
 </div>
-
 @section('js')
 <script>
     // EDIT ON MODAL
