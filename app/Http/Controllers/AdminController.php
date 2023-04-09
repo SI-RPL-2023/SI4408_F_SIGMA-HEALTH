@@ -121,4 +121,244 @@ class AdminController extends Controller
             return redirect()->to('master-poli')->with('error', 'Data gagal dihapus');   
         }
     }
+
+    public function master_dokter()
+    {
+        $dokter = DB::table('dokter as a')
+                ->join('poli as b', 'a.id_poli', '=', 'b.id')
+                ->select('a.*', 'b.nama as nama_poli')
+                ->orderBy('a.id', 'asc')
+                ->get();
+        $poli = Poli::get();
+        return view('pages.admin.master-dokter', compact('dokter', 'poli'));
+    }
+
+    public function master_dokter_simpan(Request $request)
+    {
+        $param = $request->all();
+        // dd($param);
+        $this->validate($request, [
+            'nama' => ['required', 'string'],
+            'id_poli' => 'required',
+            'jk' => 'required'
+        ]);
+
+        $res = Dokter::create([
+            'nama' => $param['nama'],
+            'id_poli' => $param['id_poli'],
+            'jk' => $param['jk']
+        ]);
+
+        if($res)
+        {
+            return redirect()->to('master-dokter')->with('success', 'Data berhasil disimpan');
+        } else {
+            return redirect()->to('master-dokter')->with('error', 'Data gagal disimpan');   
+        }
+    }
+
+    public function master_dokter_update(Request $request, $id)
+    {
+        $param = $request->all();
+        $this->validate($request, [
+            'nama' => ['required', 'string'],
+            'id_poli' => ['required'],
+            'jk' => ['required']
+        ]);
+
+        $cek = Dokter::findOrFail($id);
+
+        if($cek)
+        {
+            $res = Dokter::where('id', $id)->update([
+                'nama' => $param['nama'],
+                'id_poli' =>$param['id_poli'],
+                'jk' => $param['jk']
+            ]);
+    
+            if($res)
+            {
+                return redirect()->to('master-dokter')->with('success', 'Data berhasil diubah');
+            } else {
+                return redirect()->to('master-dokter')->with('error', 'Data gagal diubah');   
+            }
+        }
+    }
+
+    public function master_dokter_delete($id)
+    {
+        $cek = Dokter::findOrFail($id);
+        if($cek)
+        {
+            $cek->delete();
+            return redirect()->to('master-dokter')->with('success', 'Data berhasil dihapus');
+        } else {
+            return redirect()->to('master-dokter')->with('error', 'Data gagal dihapus');   
+        }
+    }
+
+    public function master_jadwal()
+    {
+        $jadwal = DB::table('jadwal as a')
+                ->join('dokter as b', 'a.id_dokter', '=', 'b.id')
+                ->select('a.*', 'b.nama as nama_dokter')
+                ->orderBy('a.id', 'asc')
+                ->get();
+
+        $dokter = Dokter::get();
+        return view('pages.admin.master-jadwal', compact('jadwal', 'dokter'));
+    }
+
+    public function master_jadwal_simpan(Request $request)
+    {
+        $param = $request->all();
+        // dd($param);
+        $this->validate($request, [
+            'id_dokter' => ['required'],
+            'jadwal_mulai' => ['required', 'string'],
+            'jadwal_selesai' => ['required', 'string'],
+        ]);
+
+        $jadwal_mulai = date('Y-m-d H:i', strtotime($param['jadwal_mulai']));
+        $jadwal_selesai = date('Y-m-d H:i', strtotime($param['jadwal_selesai']));
+
+        $res = Jadwal::create([
+            'id_dokter' => $param['id_dokter'],
+            'jadwal_mulai' => $jadwal_mulai,
+            'jadwal_selesai' => $jadwal_selesai,
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        if($res)
+        {
+            return redirect()->to('master-jadwal')->with('success', 'Data berhasil disimpan');
+        } else {
+            return redirect()->to('master-jadwal')->with('error', 'Data gagal disimpan');   
+        }
+    }
+
+    public function master_jadwal_update(Request $request, $id)
+    {
+        $param = $request->all();
+
+        $this->validate($request, [
+            'id_dokter' => ['required'],
+            'jadwal_mulai_edit' => ['required', 'string'],
+            'jadwal_selesai_edit' => ['required', 'string'],
+        ]);
+
+        $cek = Jadwal::findOrFail($id);
+
+        if($cek)
+        {           
+            $jadwal_mulai = date('Y-m-d H:i', strtotime($param['jadwal_mulai_edit']));
+            $jadwal_selesai = date('Y-m-d H:i', strtotime($param['jadwal_selesai_edit']));
+
+            $res = Jadwal::where('id', $id)->update([
+                'id_dokter' => $param['id_dokter'],
+                'jadwal_mulai' => $jadwal_mulai,
+                'jadwal_selesai' => $jadwal_selesai,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+    
+            if($res)
+            {
+                return redirect()->to('master-jadwal')->with('success', 'Data berhasil diubah');
+            } else {
+                return redirect()->to('master-jadwal')->with('error', 'Data gagal diubah');   
+            }
+        }
+    }
+
+    public function master_jadwal_delete($id)
+    {
+        $cek = Jadwal::findOrFail($id);
+        if($cek)
+        {
+            $cek->delete();
+            return redirect()->to('master-jadwal')->with('success', 'Data berhasil dihapus');
+        } else {
+            return redirect()->to('master-jadwal')->with('error', 'Data gagal dihapus');   
+        }
+    }
+    
+    public function home()
+    {
+        return view('pages.admin.home');
+    }
+
+    public function master_obat()
+    {
+        $pasien = DB::table('reservasi as a')
+                ->join('pasien as b', 'a.no_rekam_medis', '=', 'b.no_rekam_medis')
+                ->select('a.kode_reservasi', 'a.no_rekam_medis', 'b.nama', 'b.no_telp', 'b.alamat')
+                ->get();
+        $obat = DB::table('obat as a')
+            ->join('pasien as b', 'a.no_rekam_medis', '=', 'b.no_rekam_medis')
+            ->select('a.*', 'b.nama', 'b.no_telp', 'b.alamat')
+            ->get();
+
+        return view('pages.admin.master-obat', compact('pasien', 'obat'));
+    }
+
+    public function master_obat_simpan(Request $request)
+    {
+        $param = $request->all();
+        $this->validate($request, [
+            'kode_reservasi' => ['required', 'string'],
+            'no_rekam_medis' => ['required', 'string'],
+            'obat' => ['required', 'string']
+        ]);
+
+        $res = Obat::create([
+            'kode_reservasi' => $param['kode_reservasi'],
+            'no_rekam_medis' => $param['no_rekam_medis'],
+            'obat' => $param['obat']
+        ]);
+
+        if($res)
+        {
+            return redirect()->to('master-obat')->with('success', 'Data berhasil disimpan');
+        } else {
+            return redirect()->to('master-obat')->with('error', 'Data gagal disimpan');   
+        }
+    }
+
+    public function master_obat_update(Request $request, $id)
+    {
+        $param = $request->all();
+        $this->validate($request, [
+            'kode_reservasi' => ['required', 'string', 'unique:reservasi'],
+            'no_rekam_medis' => ['required', 'string'],
+            'obat' => ['required', 'string']
+        ]);
+
+        $cek = Obat::findOrFail($id);
+
+        if($cek)
+        {
+            $res = Obat::where('id', $id)->update([
+                'obat' => $param['obat']
+            ]);
+    
+            if($res)
+            {
+                return redirect()->to('master-obat')->with('success', 'Data berhasil diubah');
+            } else {
+                return redirect()->to('master-obat')->with('error', 'Data gagal diubah');   
+            }
+        }
+    }
+
+    public function master_obat_delete($id)
+    {
+        $cek = Obat::findOrFail($id);
+        if($cek)
+        {
+            $cek->delete();
+            return redirect()->to('master-obat')->with('success', 'Data berhasil dihapus');
+        } else {
+            return redirect()->to('master-obat')->with('error', 'Data gagal dihapus');   
+        }
+    }
 }

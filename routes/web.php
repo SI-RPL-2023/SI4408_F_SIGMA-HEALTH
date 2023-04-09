@@ -35,5 +35,4 @@ Route::get('getKecamatan', [PasienController::class, 'getKecamatan']);
 Route::group(['middleware' => ['login']], function(){
     Route::get('pendaftaran-pasien', [PasienController::class, 'index']);
     Route::post('pendaftaran-pasien/daftar', [PasienController::class, 'daftar_pasien']);
-    Route::get('reservasi', [PasienController::class, 'form_reservasi']);
 });

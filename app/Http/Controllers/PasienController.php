@@ -42,6 +42,7 @@ class PasienController extends Controller
 
         return $kode;
     }
+
     private function kodeReservasi()
     {
         $kode = "KR-".date('Y').'-';
@@ -56,6 +57,7 @@ class PasienController extends Controller
 
         return $kode;
     }
+
     public function index()
     {
         $provinces = Province::all();

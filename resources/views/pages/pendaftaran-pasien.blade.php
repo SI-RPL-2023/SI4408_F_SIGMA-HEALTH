@@ -46,10 +46,39 @@ function showSuccess($success)
 <!-- Tabs -->
 <nav class="mt-4">
   <div class="nav nav-tabs d-flex justify-content-center" id="nav-tab" role="tablist">
+    <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Pasien Lama</button>
     <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Pasien Baru</button>
   </div>
 </nav>
 <div class="tab-content" id="nav-tabContent">
+  <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+  <section class="sign-in mt-4 mb-4">
+      <div class="container-signup" style="width:100%">
+          <div class="signin-content">
+              <div class="signin-image">
+                  <figure><img src="{{asset('assets/login/images/doctor.jpg')}}" alt="sing up image"></figure>
+              </div>
+
+              <div class="signin-form mt-5">
+                  <form method="GET" action="{{url('pilih-poli')}}" class="register-form" id="login-form">
+                    @csrf
+                      <div class="form-group">
+                          <label class="label-form" for="no_rekam_medis"><i class="bi bi-file-earmark-medical"></i></label>
+                          <input type="text" name="no_rekam_medis" id="no_rekam_medis" placeholder="No Rekam Medis"/>
+                      </div>
+                      <div class="form-group">
+                          <label class="label-form" for="tgl_lahir"><i class="bi bi-calendar"></i></label>
+                          <input type="text" name="tgl_lahir" id="tgl_lahir" placeholder="Tanggal Lahir" autocomplete="off"/>
+                      </div>
+                      <div class="form-group form-button">
+                          <input type="submit" name="signin" id="signin" class="form-submit" value="Next"/>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </section>
+  </div>
   <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
     <div class="container">
     <div class="card border-0 rounded mt-4">
