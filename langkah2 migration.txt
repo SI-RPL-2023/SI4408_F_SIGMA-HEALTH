@@ -1,5 +1,0 @@
-Langkah-langkah migration:
-Ketik php artisan migrate:refresh --seed (untuk migrasi sekaligus melakukan seeding kedalam database)
-Ketik php artisan indoregion:publish
-Ketik composer dump-autoload
-Ketik php artisan db:seed --class=IndoRegionSeeder (untuk seeding data daerah indonesia kedalam database)
