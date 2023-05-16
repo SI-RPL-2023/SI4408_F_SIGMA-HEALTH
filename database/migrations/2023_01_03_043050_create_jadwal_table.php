@@ -19,6 +19,7 @@ class CreateJadwalTable extends Migration
             $table->timestamp("jadwal_mulai");
             $table->timestamp("jadwal_selesai")->nullable();
             $table->timestamps();
+           
 
             $table->foreign('id_dokter')->references('id')->on('dokter')->onDelete('cascade');
         });
