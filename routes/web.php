@@ -47,16 +47,10 @@ Route::group(['middleware' => ['login_admin']], function(){
     Route::post('master-poli-simpan', [AdminController::class, 'master_poli_simpan']);
     Route::post('master-poli-update/{id}', [AdminController::class, 'master_poli_update']);
     Route::post('master-poli-delete/{id}', [AdminController::class, 'master_poli_delete']);
-<<<<<<< HEAD
-=======
     Route::get('master-dokter', [AdminController::class, 'master_dokter']);
     Route::post('master-dokter-simpan', [AdminController::class, 'master_dokter_simpan']);
     Route::post('master-dokter-update/{id}', [AdminController::class, 'master_dokter_update']);
     Route::post('master-dokter-delete/{id}', [AdminController::class, 'master_dokter_delete']);
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> origin/friscaalifia
     Route::get('master-obat', [AdminController::class, 'master_obat']);
     Route::post('master-obat-simpan', [AdminController::class, 'master_obat_simpan']);
     Route::post('master-obat-update/{id}', [AdminController::class, 'master_obat_update']);
