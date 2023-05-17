@@ -47,19 +47,13 @@ Route::group(['middleware' => ['login_admin']], function(){
     Route::post('master-poli-simpan', [AdminController::class, 'master_poli_simpan']);
     Route::post('master-poli-update/{id}', [AdminController::class, 'master_poli_update']);
     Route::post('master-poli-delete/{id}', [AdminController::class, 'master_poli_delete']);
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
     Route::get('master-obat', [AdminController::class, 'master_obat']);
     Route::post('master-obat-simpan', [AdminController::class, 'master_obat_simpan']);
     Route::post('master-obat-update/{id}', [AdminController::class, 'master_obat_update']);
     Route::post('master-obat-delete/{id}', [AdminController::class, 'master_obat_delete']);
->>>>>>> origin/daniel
-=======
     Route::get('master-jadwal', [AdminController::class, 'master_jadwal']);
     Route::post('master-jadwal-simpan', [AdminController::class, 'master_jadwal_simpan']);
     Route::post('master-jadwal-update/{id}', [AdminController::class, 'master_jadwal_update']);
     Route::post('master-jadwal-delete/{id}', [AdminController::class, 'master_jadwal_delete']);
->>>>>>> origin/Fikri
     Route::get('home-admin', [AdminController::class, 'home']);
 });
