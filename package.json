@@ -1,6 +1,7 @@
 {
     "private": true,
     "scripts": {
+<<<<<<< HEAD
         "dev": "npm run development",
         "development": "mix",
         "watch": "mix watch",
@@ -14,5 +15,14 @@
         "laravel-mix": "^6.0.6",
         "lodash": "^4.17.19",
         "postcss": "^8.1.14"
+=======
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "axios": "^1.1.2",
+        "laravel-vite-plugin": "^0.7.2",
+        "vite": "^4.0.0"
+>>>>>>> origin/daniel
     }
 }
