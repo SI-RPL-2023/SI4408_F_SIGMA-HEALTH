@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\RateLimiter;
 
 use App\Models\User;
 use Session;
@@ -65,6 +66,10 @@ class AuthController extends Controller
 
     public function doLogin(Request $request)
     {
+        if (RateLimiter::tooManyAttempts(request()->ip(), 3)) {
+            return back()->with('error', 'Silahkan coba lagi dalam 1 menit');
+        }
+
         // Validate form
         $this->validate($request, [
             'email' => ['required', 'string', 'email', 'max:255'],
@@ -79,6 +84,7 @@ class AuthController extends Controller
         {                   
             if(Hash::check($param['password'], $result['password']))
             {
+                RateLimiter::clear(request()->ip());
                 if(Auth::attempt($param))
                 {
                     $user = Auth::user();
@@ -108,9 +114,16 @@ class AuthController extends Controller
                         return Redirect::to('home-admin');
                     }
                 }
+            } else {
+                RateLimiter::hit(request()->ip(), 60);
+                if (RateLimiter::tooManyAttempts(request()->ip(), 3)) {
+                    return back()->with('error', 'Silahkan coba lagi dalam 1 menit');
+                }
+                return back()->with('error', 'Password salah!');
             }
         } else {
-            return redirect()->to('login')->with('error', 'Email atau Password salah!');
+            RateLimiter::hit(request()->ip(), 60);
+            return back()->with('error', 'Email salah!');
         }
     }
 
