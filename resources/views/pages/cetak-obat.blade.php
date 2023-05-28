@@ -21,6 +21,8 @@
         padding-right: 40px;
     }
 
+    
+
 </style>
 <body>
 <div class="center">
