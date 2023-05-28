@@ -1,6 +1,7 @@
 @extends('../layout')
 @section('content')
  <!-- ALERT -->
+
  <?php 
 function showError($error)
 {   
@@ -19,6 +20,7 @@ function showError($error)
     
 <?php
 }
+
 function showSuccess($success)
 {   
     ?>
@@ -37,12 +39,14 @@ function showSuccess($success)
 <?php
 }
 ?>
+
 @if(session()->has('error'))
 <p><?php echo showError(Session::get('error')); ?></p>
 @elseif(session()->has('success'))
 <p><?php echo showSuccess(Session::get('success')); ?></p>
 @endif 
 <!-- END OF ALERT -->
+
 <section class="sign-in mt-4 mb-4">
       <div class="container-signup" style="width:100%">
           <div class="signin-content">
