@@ -1,6 +1,69 @@
 @extends('../layout')
 @section('content')
   <!-- ALERT -->
+  <?php 
+function showError($error)
+{   
+    ?>
+    <div class="toast position-fixed top-0 start-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <span class="text-danger"><i class="bi bi-square-fill"></i></span>
+            <strong class="me-auto">&nbsp;Alert</strong>
+            
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <?php echo $error ?>
+        </div>
+    </div>
+    
+<?php
+}
+function showSuccess($success)
+{   
+    ?>
+    <div class="toast position-fixed top-0 start-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <span class="text-success"><i class="bi bi-square-fill"></i></span>
+            <strong class="me-auto">&nbsp;Alert</strong>
+            
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <?php echo $success ?>
+        </div>
+    </div>
+    
+<?php
+}
+?>
+<!-- END OF ALERT -->
+
+<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-inner">
+     <div class="carousel-item active">
+      <img src="{{asset('assets/images/slide1.png')}}" class="d-block w-100">
+    </div>
+    <div class="carousel-item">
+      <img src="{{asset('assets/images/slide2.png')}}" class="d-block w-100">
+    </div>
+    <div class="carousel-item">
+      <img src="{{asset('assets/images/slide3.png')}}" class="d-block w-100">
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div> 
+<div class="main">
+<section class="sign-in">
+    <div class="container-signup">
+        <div class="signin-content">
             <div class="signin-image">
                 <figure><img src="{{asset('assets/login/images/signin-image.jpg')}}" alt="sing up image"></figure>
                 <span>Apakah anda belum memiliki akun? <a href="register" class="register">Registrasi</a></span>

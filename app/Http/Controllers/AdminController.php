@@ -329,6 +329,7 @@ class AdminController extends Controller
         $param = $request->all();
         $this->validate($request, [
             'kode_reservasi' => ['required', 'string', 'unique:reservasi'],
+            'kode_reservasi' => ['required', 'string'],
             'no_rekam_medis' => ['required', 'string'],
             'obat' => ['required', 'string']
         ]);
