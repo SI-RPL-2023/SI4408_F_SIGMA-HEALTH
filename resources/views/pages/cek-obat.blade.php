@@ -46,6 +46,7 @@ function showSuccess($success)
 <p><?php echo showSuccess(Session::get('success')); ?></p>
 @endif 
 <!-- END OF ALERT -->
+
 <section class="sign-in mt-4 mb-4">
       <div class="container-signup" style="width:100%">
           <div class="signin-content">
