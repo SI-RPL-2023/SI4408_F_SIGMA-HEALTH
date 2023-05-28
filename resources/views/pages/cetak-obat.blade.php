@@ -21,7 +21,6 @@
         padding-right: 40px;
     }
 
-    
 
 </style>
 <body>
