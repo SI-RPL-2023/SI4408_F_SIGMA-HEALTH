@@ -36,11 +36,18 @@ Route::group(['middleware' => ['login']], function(){
     Route::get('pendaftaran-pasien', [PasienController::class, 'index']);
     Route::post('pendaftaran-pasien/daftar', [PasienController::class, 'daftar_pasien']);
     Route::get('pilih-poli', [PasienController::class, 'pilih_poli']);
+<<<<<<< HEAD
+=======
+    Route::get('poliklinik', [PasienController::class, 'poliklinik']);
+>>>>>>> 1085c3c8a7e2ab76310b8a8097f62ee81a6ba848
     Route::get('getWaktuPeriksa', [PasienController::class, 'getWaktuPeriksa']);
     Route::get('getTglPeriksa', [PasienController::class, 'getTglPeriksa']);
     Route::post('doReservasi', [PasienController::class, 'doReservasi']);
     Route::get('reservasi', [PasienController::class, 'form_reservasi']);
+<<<<<<< HEAD
     Route::get('poliklinik', [PasienController::class, 'poliklinik']);
+=======
+>>>>>>> 1085c3c8a7e2ab76310b8a8097f62ee81a6ba848
     Route::get('cek-reservasi', [PasienController::class, 'hasil_reservasi']);
     Route::get('tampil-hasil-reservasi/{id}', [PasienController::class, 'tampil_hasil_reservasi']);
     Route::get('cetak-reservasi/{id}', [PasienController::class, 'cetak_reservasi']);
